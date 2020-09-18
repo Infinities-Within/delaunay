@@ -2,14 +2,14 @@ package delaunay
 
 import "sort"
 
-func cross2D(p, a, b Point) float64 {
-	return (a.X-p.X)*(b.Y-p.Y) - (a.Y-p.Y)*(b.X-p.X)
+func cross2D(p, a, b Point2d) float64 {
+	return (a.X()-p.X())*(b.Y()-p.Y()) - (a.Y()-p.Y())*(b.X()-p.X())
 }
 
 // ConvexHull returns the convex hull of the provided points.
-func ConvexHull(points []Point) []Point {
+func ConvexHull(points []Point2d) []Point2d {
 	// copy points
-	pointsCopy := make([]Point, len(points))
+	pointsCopy := make([]Point2d, len(points))
 	copy(pointsCopy, points)
 	points = pointsCopy
 
@@ -17,16 +17,16 @@ func ConvexHull(points []Point) []Point {
 	sort.Slice(points, func(i, j int) bool {
 		a := points[i]
 		b := points[j]
-		if a.X != b.X {
-			return a.X < b.X
+		if a.X() != b.X() {
+			return a.X() < b.X()
 		}
-		return a.Y < b.Y
+		return a.Y() < b.Y()
 	})
 
 	// filter nearly-duplicate points
 	distinctPoints := points[:0]
 	for i, p := range points {
-		if i > 0 && p.squaredDistance(points[i-1]) < eps {
+		if i > 0 && p.SquaredDistance(points[i-1]) < eps {
 			continue
 		}
 		distinctPoints = append(distinctPoints, p)
@@ -34,7 +34,7 @@ func ConvexHull(points []Point) []Point {
 	points = distinctPoints
 
 	// find upper and lower portions
-	var U, L []Point
+	var U, L []Point2d
 	for _, p := range points {
 		for len(U) > 1 && cross2D(U[len(U)-2], U[len(U)-1], p) > 0 {
 			U = U[:len(U)-1]

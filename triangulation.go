@@ -6,14 +6,14 @@ import (
 )
 
 type Triangulation struct {
-	Points     []Point
-	ConvexHull []Point
+	Points     []Point2d
+	ConvexHull []Point2d
 	Triangles  []int
 	Halfedges  []int
 }
 
 // Triangulate returns a Delaunay triangulation of the provided points.
-func Triangulate(points []Point) (*Triangulation, error) {
+func Triangulate(points []Point2d) (*Triangulation, error) {
 	t := newTriangulator(points)
 	err := t.triangulate()
 	return &Triangulation{points, t.convexHull(), t.triangles, t.halfedges}, err

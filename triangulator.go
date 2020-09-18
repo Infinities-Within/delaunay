@@ -7,10 +7,10 @@ import (
 )
 
 type triangulator struct {
-	points           []Point
+	points           []Point2d
 	squaredDistances []float64
 	ids              []int
-	center           Point
+	center           Point2d
 	triangles        []int
 	halfedges        []int
 	trianglesLen     int
@@ -18,12 +18,12 @@ type triangulator struct {
 	hash             []*node
 }
 
-func newTriangulator(points []Point) *triangulator {
+func newTriangulator(points []Point2d) *triangulator {
 	return &triangulator{points: points}
 }
 
 // sorting a triangulator sorts the `ids` such that the referenced points
-// are in order by their distance to `center`
+// are in order by their Distance to `center`
 func (a *triangulator) Len() int {
 	return len(a.points)
 }
@@ -40,10 +40,10 @@ func (a *triangulator) Less(i, j int) bool {
 	}
 	p1 := a.points[a.ids[i]]
 	p2 := a.points[a.ids[j]]
-	if p1.X != p2.X {
-		return p1.X < p2.X
+	if p1.X() != p2.X() {
+		return p1.X() < p2.X()
 	}
-	return p1.Y < p2.Y
+	return p1.Y() < p2.Y()
 }
 
 func (tri *triangulator) triangulate() error {
@@ -57,22 +57,22 @@ func (tri *triangulator) triangulate() error {
 	tri.ids = make([]int, n)
 
 	// compute bounds
-	x0 := points[0].X
-	y0 := points[0].Y
-	x1 := points[0].X
-	y1 := points[0].Y
+	x0 := points[0].X()
+	y0 := points[0].Y()
+	x1 := points[0].X()
+	y1 := points[0].Y()
 	for i, p := range points {
-		if p.X < x0 {
-			x0 = p.X
+		if p.X() < x0 {
+			x0 = p.X()
 		}
-		if p.X > x1 {
-			x1 = p.X
+		if p.X() > x1 {
+			x1 = p.X()
 		}
-		if p.Y < y0 {
-			y0 = p.Y
+		if p.Y() < y0 {
+			y0 = p.Y()
 		}
-		if p.Y > y1 {
-			y1 = p.Y
+		if p.Y() > y1 {
+			y1 = p.Y()
 		}
 		tri.ids[i] = i
 	}
@@ -80,10 +80,10 @@ func (tri *triangulator) triangulate() error {
 	var i0, i1, i2 int
 
 	// pick a seed point close to midpoint
-	m := Point{(x0 + x1) / 2, (y0 + y1) / 2}
+	m := point{(x0 + x1) / 2, (y0 + y1) / 2}
 	minDist := infinity
 	for i, p := range points {
-		d := p.squaredDistance(m)
+		d := p.SquaredDistance(m)
 		if d < minDist {
 			i0 = i
 			minDist = d
@@ -96,7 +96,7 @@ func (tri *triangulator) triangulate() error {
 		if i == i0 {
 			continue
 		}
-		d := p.squaredDistance(points[i0])
+		d := p.SquaredDistance(points[i0])
 		if d > 0 && d < minDist {
 			i1 = i
 			minDist = d
@@ -126,10 +126,10 @@ func (tri *triangulator) triangulate() error {
 
 	tri.center = circumcenter(points[i0], points[i1], points[i2])
 
-	// sort the points by distance from the seed triangle circumcenter
+	// sort the points by Distance from the seed triangle circumcenter
 	tri.squaredDistances = make([]float64, n)
 	for i, p := range points {
-		tri.squaredDistances[i] = p.squaredDistance(tri.center)
+		tri.squaredDistances[i] = p.SquaredDistance(tri.center)
 	}
 	sort.Sort(tri)
 
@@ -160,13 +160,13 @@ func (tri *triangulator) triangulate() error {
 
 	tri.addTriangle(i0, i1, i2, -1, -1, -1)
 
-	pp := Point{infinity, infinity}
+	pp := Point2d(point{infinity, infinity})
 	for k := 0; k < n; k++ {
 		i := tri.ids[k]
 		p := points[i]
 
 		// skip nearly-duplicate points
-		if p.squaredDistance(pp) < eps {
+		if p.SquaredDistance(pp) < eps {
 			continue
 		}
 		pp = p
@@ -245,9 +245,9 @@ func (tri *triangulator) triangulate() error {
 	return nil
 }
 
-func (t *triangulator) hashKey(point Point) int {
-	d := point.sub(t.center)
-	return int(pseudoAngle(d.X, d.Y) * float64(len(t.hash)))
+func (t *triangulator) hashKey(point Point2d) int {
+	d := point.Sub(t.center)
+	return int(pseudoAngle(d.X(), d.Y()) * float64(len(t.hash)))
 }
 
 func (t *triangulator) hashEdge(e *node) {
@@ -342,8 +342,8 @@ func (t *triangulator) legalize(a int) int {
 	return ar
 }
 
-func (t *triangulator) convexHull() []Point {
-	var result []Point
+func (t *triangulator) convexHull() []Point2d {
+	var result []Point2d
 	e := t.hull
 	for e != nil {
 		result = append(result, t.points[e.i])

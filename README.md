@@ -1,23 +1,24 @@
 ## Delaunay Triangulation
-
 Fast Delaunay triangulation implemented in Go.
 
-This code was ported from [Mapbox's Delaunator project](https://github.com/mapbox/delaunator) (JavaScript).
+This module has been derived from [Michael Fogelman's port](https://github.com/fogleman/delaunay) of the [Mapbox's Delaunator project](https://github.com/mapbox/delaunator) (JavaScript).
+
+The only modifications from Mr. Fogelman's code are that the project has been updated to be a Go module, and all methods now accept and return the `Point2d` interface, to allow easier interoperation between this library and code that does not want to use this library's internal representation of 2d points.
 
 ### Installation
 
-    $ go get -u github.com/fogleman/delaunay
+    $ go get -u github.com/Infinities-Within/delaunay
 
 ### Documentation
 
-https://godoc.org/github.com/fogleman/delaunay
+https://godoc.org/github.com/Infinities-Within/delaunay
 
 See https://mapbox.github.io/delaunator/ for more information about the `Triangles` and `Halfedges` data structures.
 
 ### Usage
 
 ```go
-var points []delaunay.Point
+var points []delaunay.Point2d
 // populate points...
 triangulation, err := delaunay.Triangulate(points)
 // handle err...
@@ -26,7 +27,7 @@ triangulation, err := delaunay.Triangulate(points)
 
 ### Performance
 
-3.3 GHz Intel Core i5
+2.6 GHz Intel Core i7
 
 | # of Points | Time |
 | ---: | ---: |

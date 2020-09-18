@@ -16,17 +16,17 @@ func pseudoAngle(dx, dy float64) float64 {
 	return math.Max(0, math.Min(1-eps, p))
 }
 
-func area(a, b, c Point) float64 {
-	return (b.Y-a.Y)*(c.X-b.X) - (b.X-a.X)*(c.Y-b.Y)
+func area(a, b, c Point2d) float64 {
+	return (b.Y()-a.Y())*(c.X()-b.X()) - (b.X()-a.X())*(c.Y()-b.Y())
 }
 
-func inCircle(a, b, c, p Point) bool {
-	dx := a.X - p.X
-	dy := a.Y - p.Y
-	ex := b.X - p.X
-	ey := b.Y - p.Y
-	fx := c.X - p.X
-	fy := c.Y - p.Y
+func inCircle(a, b, c, p Point2d) bool {
+	dx := a.X() - p.X()
+	dy := a.Y() - p.Y()
+	ex := b.X() - p.X()
+	ey := b.Y() - p.Y()
+	fx := c.X() - p.X()
+	fy := c.Y() - p.Y()
 
 	ap := dx*dx + dy*dy
 	bp := ex*ex + ey*ey
@@ -35,11 +35,11 @@ func inCircle(a, b, c, p Point) bool {
 	return dx*(ey*cp-bp*fy)-dy*(ex*cp-bp*fx)+ap*(ex*fy-ey*fx) < 0
 }
 
-func circumradius(a, b, c Point) float64 {
-	dx := b.X - a.X
-	dy := b.Y - a.Y
-	ex := c.X - a.X
-	ey := c.Y - a.Y
+func circumradius(a, b, c Point2d) float64 {
+	dx := b.X() - a.X()
+	dy := b.Y() - a.Y()
+	ex := c.X() - a.X()
+	ey := c.Y() - a.Y()
 
 	bl := dx*dx + dy*dy
 	cl := ex*ex + ey*ey
@@ -57,39 +57,39 @@ func circumradius(a, b, c Point) float64 {
 	return r
 }
 
-func circumcenter(a, b, c Point) Point {
-	dx := b.X - a.X
-	dy := b.Y - a.Y
-	ex := c.X - a.X
-	ey := c.Y - a.Y
+func circumcenter(a, b, c Point2d) Point2d {
+	dx := b.X() - a.X()
+	dy := b.Y() - a.Y()
+	ex := c.X() - a.X()
+	ey := c.Y() - a.Y()
 
 	bl := dx*dx + dy*dy
 	cl := ex*ex + ey*ey
 	d := dx*ey - dy*ex
 
-	x := a.X + (ey*bl-dy*cl)*0.5/d
-	y := a.Y + (dx*cl-ex*bl)*0.5/d
+	x := a.X() + (ey*bl-dy*cl)*0.5/d
+	y := a.Y() + (dx*cl-ex*bl)*0.5/d
 
-	return Point{x, y}
+	return point{x, y}
 }
 
-func polygonArea(points []Point) float64 {
+func polygonArea(Point2ds []Point2d) float64 {
 	var result float64
-	for i, p := range points {
-		q := points[(i+1)%len(points)]
-		result += (p.X - q.X) * (p.Y + q.Y)
+	for i, p := range Point2ds {
+		q := Point2ds[(i+1)%len(Point2ds)]
+		result += (p.X() - q.X()) * (p.Y() + q.Y())
 	}
 	return result / 2
 }
 
-func polygonPerimeter(points []Point) float64 {
-	if len(points) == 0 {
+func polygonPerimeter(Point2ds []Point2d) float64 {
+	if len(Point2ds) == 0 {
 		return 0
 	}
 	var result float64
-	q := points[len(points)-1]
-	for _, p := range points {
-		result += p.distance(q)
+	q := Point2ds[len(Point2ds)-1]
+	for _, p := range Point2ds {
+		result += p.Distance(q)
 		q = p
 	}
 	return result
